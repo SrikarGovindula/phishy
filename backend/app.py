@@ -98,26 +98,24 @@ app = FastAPI(
     redoc_url="/redoc" if DEBUG else None,
 )
 
-# CORS Middleware - Secure configuration
-if USE_WILDCARD:
-    # Development mode: Allow all origins for ngrok/Chrome extension
-    logger.warning("⚠️  WILDCARD CORS ENABLED - Development mode only!")
+# CORS Middleware - Secure and robust configuration
+if USE_WILDCARD or "*" in ALLOWED_ORIGINS:
+    logger.info("CORS enabled for all origins")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
         allow_credentials=False,
-        allow_methods=["GET", "POST"],
+        allow_methods=["*"],
         allow_headers=["*"],
     )
 else:
-    # Production mode: Restricted origins
-    logger.info("✓ Restricted CORS enabled - Production mode")
+    logger.info(f"CORS enabled for origins: {ALLOWED_ORIGINS}")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=ALLOWED_ORIGINS,
-        allow_credentials=False,
-        allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type", "Authorization"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
 routes_loaded = []
@@ -247,7 +245,7 @@ def setup_static_files():
     </div>
 </body>
 </html>"""
-                default_page.write_text(default_content)
+                default_page.write_text(default_content, encoding="utf-8")
                 logger.info("Created default training page")
             
             app.mount("/training", StaticFiles(directory="training"), name="training")

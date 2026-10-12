@@ -3,8 +3,15 @@ from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import pandas as pd
 import numpy as np
-from prophet import Prophet
-from prophet.plot import plot_plotly, plot_components_plotly
+try:
+    from prophet import Prophet
+    from prophet.plot import plot_plotly, plot_components_plotly
+    PROPHET_AVAILABLE = True
+except ImportError:
+    Prophet = None
+    plot_plotly = None
+    plot_components_plotly = None
+    PROPHET_AVAILABLE = False
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta

@@ -1,0 +1,6 @@
+action_id,id,ip_address,referer,timestamp,user_agent,user_email
+sim_campaign_001,click_1791815317441_309185,testclient,direct,2026-10-12T14:28:37.440664,testclient,victim.sim@company.com
+sim_campaign_001,click_1791814389824_d81bcc,testclient,direct,2026-10-12T14:13:09.822559,testclient,victim.sim@company.com
+sim_campaign_001,click_1791810628916_b6645b,testclient,direct,2026-10-12T13:10:28.914887,testclient,victim.sim@company.com
+sim_campaign_001,click_1791809602981_ab2208,testclient,direct,2026-10-12T12:53:22.978450,testclient,victim.sim@company.com
+sim_campaign_001,click_1791809463087_5ea1b9,testclient,direct,2026-10-12T12:51:03.086319,testclient,victim.sim@company.com

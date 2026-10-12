@@ -501,7 +501,7 @@
 </div>
 
 <script>
-  const API_BASE = (window.location.port === '8080' || window.location.port === '3001' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:8080' : '';
+  const API_BASE = window.RENDER_API_URL || localStorage.getItem('phishy_api_base') || ((window.location.port === '8080' || window.location.port === '3001' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:8080' : '');
 
   function togglePassword(inputId){
     const input = document.getElementById(inputId);

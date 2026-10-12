@@ -28,6 +28,8 @@ const THREATLENS_TRANSLATIONS = {
         systemHealthNavItem: "System Health",
         flaggedEmailsNavItem: "Flagged Emails",
         userManagementNavItem: "User Directory",
+        helplineNumbersGroup: "HELPLINE NUMBERS",
+        helplineNavItem: "Official Helpline Reference Sheet",
 
         // Header
         statusPlatformReady: "Platform Ready",
@@ -111,6 +113,8 @@ const THREATLENS_TRANSLATIONS = {
         systemHealthNavItem: "सिस्टम स्थिति",
         flaggedEmailsNavItem: "फ़्लैग किए गए ईमेल",
         userManagementNavItem: "उपयोगकर्ता निर्देशिका",
+        helplineNumbersGroup: "हेल्पलाइन नंबर",
+        helplineNavItem: "आधिकारिक हेल्पलाइन संदर्भ पत्र",
 
         // Header
         statusPlatformReady: "प्लेटफ़ॉर्म तैयार है",
@@ -194,6 +198,8 @@ const THREATLENS_TRANSLATIONS = {
         systemHealthNavItem: "సిస్టమ్ ఆరోగ్యం",
         flaggedEmailsNavItem: "ఫ్లాగ్ చేయబడిన ఈమెయిల్‌లు",
         userManagementNavItem: "వినియోగదారుల డైరెక్టరీ",
+        helplineNumbersGroup: "హెల్ప్‌లైన్ నంబర్లు",
+        helplineNavItem: "అధికారిక హెల్ప్‌లైన్ రెఫరెన్స్ షీట్",
 
         // Header
         statusPlatformReady: "ప్లాట్‌ఫారమ్ సిద్ధంగా ఉంది",
@@ -323,6 +329,12 @@ function applyThreatLensLanguage(lang) {
 
     const elUserNav = document.getElementById('userManagementNavItemText');
     if (elUserNav) elUserNav.textContent = t.userManagementNavItem;
+
+    const elHelplineGroupTitle = document.getElementById('helplineNumbersGroupTitle');
+    if (elHelplineGroupTitle) elHelplineGroupTitle.textContent = t.helplineNumbersGroup;
+
+    const elHelplineNav = document.getElementById('helplineNavItemText');
+    if (elHelplineNav) elHelplineNav.textContent = t.helplineNavItem;
 
     // Update Header Buttons
     const elLoginBtn = document.getElementById('loginBtn');

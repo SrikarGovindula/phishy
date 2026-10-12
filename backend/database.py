@@ -197,8 +197,28 @@ def init_firebase() -> bool:
         import firebase_admin
         from firebase_admin import credentials, firestore, db
 
-        key_path = Path(FIREBASE_SERVICE_ACCOUNT_KEY) if FIREBASE_SERVICE_ACCOUNT_KEY else None
-        if not key_path or not key_path.exists():
+        raw_json_env = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON", "").strip()
+        key_str = FIREBASE_SERVICE_ACCOUNT_KEY.strip() if FIREBASE_SERVICE_ACCOUNT_KEY else ""
+
+        key_path = None
+        key_dict = None
+
+        if raw_json_env:
+            try:
+                key_dict = json.loads(raw_json_env)
+            except Exception as e:
+                logger.error(f"Error parsing FIREBASE_SERVICE_ACCOUNT_JSON: {e}")
+        elif key_str.startswith("{"):
+            try:
+                key_dict = json.loads(key_str)
+            except Exception as e:
+                logger.error(f"Error parsing FIREBASE_SERVICE_ACCOUNT_KEY as JSON: {e}")
+        elif key_str:
+            p = Path(key_str)
+            if p.exists():
+                key_path = p
+
+        if not key_dict and not key_path:
             for candidate in [
                 BASE_DIR.parent / "service-account.json",
                 BASE_DIR / "service-account.json",
@@ -213,6 +233,17 @@ def init_firebase() -> bool:
         if firebase_admin._apps:
             app_initialized = True
             logger.info("Connected to existing Firebase Admin app")
+        elif key_dict:
+            try:
+                cred = credentials.Certificate(key_dict)
+                firebase_admin.initialize_app(cred, {
+                    "projectId": FIREBASE_PROJECT_ID,
+                    "databaseURL": FIREBASE_DATABASE_URL or None
+                })
+                app_initialized = True
+                logger.info("Firebase Admin initialized using JSON environment variable")
+            except Exception as e:
+                logger.error(f"Error initializing Firebase from JSON dictionary: {e}")
         elif key_path and key_path.exists():
             try:
                 cred = credentials.Certificate(str(key_path))
