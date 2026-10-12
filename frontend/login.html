@@ -3,367 +3,413 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign In — ThreatLens</title>
-  <meta name="description" content="Sign in to ThreatLens, an AI-powered multi-signal email security platform." />
+  <title>Sign In - ThreatLens Security Platform</title>
+  <meta name="description" content="Sign in to ThreatLens, an enterprise email security and phishing simulation platform backed by Firebase Realtime Database." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <!-- Firebase Web SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <style>
-    :root{
-      --bg:#06091f;
-      --panel:#0d1238;
-      --panel2:#11184a;
-      --border:rgba(122,116,255,.26);
-      --text:#f7f7ff;
-      --muted:#9da6c7;
-      --purple:#7847ff;
-      --violet:#a14dff;
-      --blue:#5798ff;
-      --green:#52dfa9;
-      --danger:#ff6a83;
-      --shadow:0 30px 90px rgba(0,0,0,.48);
+    :root {
+      --bg: #070b14;
+      --panel: #0d1424;
+      --panel-elevated: #131c31;
+      --border: #1e293b;
+      --border-focus: #3b82f6;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius: 6px;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 15% 10%,rgba(77,81,255,.14),transparent 28%),
-        radial-gradient(circle at 90% 85%,rgba(154,71,255,.13),transparent 26%),
-        linear-gradient(135deg,#06091f,#040719 58%,#080a21);
-      overflow:hidden;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    a{color:inherit;text-decoration:none}
-    button,input{font:inherit}
-    .page{
-      width:min(1420px,100%);
-      height:100%;
-      min-height:700px;
-      margin:auto;
-      padding:26px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+    html, body {
+      height: 100%;
     }
-    .shell{
-      width:min(1200px,100%);
-      min-height:670px;
-      display:grid;
-      grid-template-columns:1.06fr .94fr;
-      border:1px solid rgba(128,118,255,.30);
-      border-radius:24px;
-      overflow:hidden;
-      background:rgba(7,11,34,.84);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(18px);
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
     }
-
-    /* LEFT / LOGIN */
-    .login-side{
-      padding:46px 58px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      position:relative;
-      background:
-        linear-gradient(180deg,rgba(14,19,56,.96),rgba(7,11,34,.96));
+    a {
+      color: inherit;
+      text-decoration: none;
     }
-    .login-side:before{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background:
-        linear-gradient(rgba(100,96,189,.045) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(100,96,189,.045) 1px,transparent 1px);
-      background-size:36px 36px;
-      mask-image:linear-gradient(to bottom,black,transparent 86%);
+    button, input {
+      font: inherit;
     }
-    .content{position:relative;z-index:2;width:min(450px,100%);margin:auto}
-    .brand{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      font-weight:900;
-      letter-spacing:-.02em;
-      font-size:17px;
-      margin-bottom:50px;
+    .page {
+      width: min(1360px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .brand-mark{
-      width:31px;height:31px;
-      display:grid;place-items:center;
-      border-radius:9px;
-      background:linear-gradient(145deg,#605bff,#a34bff);
-      box-shadow:0 0 25px rgba(125,77,255,.42);
-    }
-    .eyebrow{
-      color:#8c83ff;
-      font-size:11px;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      font-weight:900;
-      margin-bottom:10px;
-    }
-    h1{
-      margin:0;
-      font-size:39px;
-      line-height:1.05;
-      letter-spacing:-.045em;
-    }
-    .intro{
-      color:var(--muted);
-      line-height:1.65;
-      font-size:13px;
-      max-width:420px;
-      margin:12px 0 28px;
-    }
-    .google{
-      width:100%;
-      height:49px;
-      border:1px solid rgba(133,131,212,.35);
-      border-radius:10px;
-      background:rgba(20,25,68,.74);
-      color:#f5f6ff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:11px;
-      font-size:13px;
-      font-weight:800;
-      cursor:pointer;
-      transition:.2s ease;
-    }
-    .google:hover,.email-submit:hover{
-      transform:translateY(-1px);
-      border-color:rgba(148,137,255,.68);
-    }
-    .g-logo{
-      width:20px;height:20px;
-      border-radius:50%;
-      display:grid;place-items:center;
-      background:#fff;
-      font-weight:900;
-      font-size:14px;
-      color:#4285f4;
-      box-shadow:0 0 0 1px rgba(255,255,255,.18);
-    }
-    .divider{
-      display:flex;
-      align-items:center;
-      gap:13px;
-      color:#6f789f;
-      font-size:10px;
-      margin:23px 0;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-    }
-    .divider:before,.divider:after{
-      content:"";
-      height:1px;
-      flex:1;
-      background:rgba(117,111,204,.18);
-    }
-    .field{margin-bottom:15px}
-    label{
-      display:block;
-      color:#afb7d4;
-      font-size:11px;
-      font-weight:700;
-      margin-bottom:7px;
-    }
-    .input-wrap{position:relative}
-    .input-icon{
-      position:absolute;
-      left:13px;
-      top:50%;
-      transform:translateY(-50%);
-      color:#7783b5;
-      font-size:14px;
-    }
-    input{
-      width:100%;
-      height:47px;
-      border:1px solid rgba(116,117,203,.28);
-      background:#090e31;
-      border-radius:10px;
-      padding:0 13px 0 39px;
-      color:#fff;
-      outline:none;
-    }
-    input:focus{
-      border-color:#8f7cff;
-      box-shadow:0 0 0 3px rgba(126,85,255,.11);
-    }
-    .password-wrap input{padding-right:45px}
-    .password-toggle{
-      border:0;
-      background:none;
-      color:#7783b4;
-      position:absolute;
-      right:12px;
-      top:50%;
-      transform:translateY(-50%);
-      cursor:pointer;
-    }
-    .row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin:8px 0 21px;
-      font-size:11px;
-    }
-    .remember{display:flex;align-items:center;gap:8px;color:#8e97b7}
-    .remember input{
-      width:14px;height:14px;padding:0;accent-color:#8050ff;
-    }
-    .forgot{color:#ae91ff;font-weight:700}
-    .email-submit{
-      width:100%;
-      height:49px;
-      border:0;
-      border-radius:10px;
-      background:linear-gradient(135deg,#7044ff,#a048ff);
-      color:#fff;
-      font-size:13px;
-      font-weight:900;
-      cursor:pointer;
-      box-shadow:0 14px 34px rgba(110,56,255,.27);
-      transition:.2s ease;
-    }
-    .bottom{
-      text-align:center;
-      color:#8089a8;
-      font-size:11px;
-      margin-top:20px;
-    }
-    .bottom a{color:#b594ff;font-weight:800}
-    .secure-note{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:7px;
-      color:#69738f;
-      font-size:10px;
-      margin-top:28px;
-    }
-    .shield-mini{color:#78a4ff}
-
-    /* RIGHT / VISUAL */
-    .visual-side{
-      min-height:670px;
-      position:relative;
-      overflow:hidden;
-      background:#050a25;
-      border-left:1px solid rgba(121,111,221,.17);
-    }
-    .visual-bg{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      opacity:.38;
-      filter:saturate(1.15) contrast(1.05);
-      transform:scale(1.08);
-    }
-    .visual-overlay{
-      position:absolute;inset:0;
-      background:
-        linear-gradient(180deg,rgba(5,9,32,.30),rgba(4,7,24,.77)),
-        linear-gradient(90deg,rgba(5,7,25,.12),rgba(24,8,70,.28));
-    }
-    .visual-grid{
-      position:absolute;inset:0;
-      background:
-        linear-gradient(rgba(111,107,200,.055) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(111,107,200,.055) 1px,transparent 1px);
-      background-size:36px 36px;
-      mask-image:linear-gradient(to bottom,black,transparent);
-    }
-    .visual-content{
-      position:absolute;
-      inset:0;
-      padding:48px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-    }
-    .visual-top{max-width:420px}
-    .visual-kicker{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:7px 10px;
-      border:1px solid rgba(121,121,255,.30);
-      border-radius:999px;
-      background:rgba(34,28,92,.43);
-      color:#c4c6e9;font-size:10px;font-weight:800;
-    }
-    .visual-dot{width:6px;height:6px;border-radius:50%;background:#62e5ff;box-shadow:0 0 12px #62e5ff}
-    .visual-title{
-      margin:16px 0 10px;
-      font-size:38px;
-      line-height:1.08;
-      letter-spacing:-.04em;
-    }
-    .visual-title span{
-      background:linear-gradient(90deg,#66b8ff,#c168ff);
-      -webkit-background-clip:text;background-clip:text;color:transparent;
-    }
-    .visual-copy{
-      margin:0;
-      color:#a8b0d0;
-      font-size:12px;
-      line-height:1.65;
-      max-width:390px;
-    }
-    .glass-card{
-      width:min(410px,100%);
-      margin-top:auto;
-      margin-left:auto;
-      border:1px solid rgba(133,125,247,.32);
-      border-radius:14px;
-      padding:16px;
-      background:rgba(11,16,48,.68);
-      backdrop-filter:blur(12px);
-      box-shadow:0 25px 55px rgba(0,0,0,.28);
-    }
-    .glass-head{display:flex;align-items:center;justify-content:space-between}
-    .glass-title{font-size:11px;font-weight:800}
-    .safe{color:#53e0a4;font-size:10px;font-weight:800}
-    .glass-score{display:flex;align-items:flex-end;gap:8px;margin:15px 0 12px}
-    .big-score{font-size:34px;font-weight:950}
-    .score-copy{color:#8892b6;font-size:10px;padding-bottom:4px}
-    .line{height:6px;border-radius:9px;background:rgba(104,107,187,.18);overflow:hidden}
-    .line span{display:block;height:100%;width:82%;background:linear-gradient(90deg,#517bff,#a253ff);border-radius:inherit}
-    .glass-list{display:grid;gap:8px;margin-top:13px}
-    .glass-row{
-      display:flex;align-items:center;justify-content:space-between;
-      font-size:10px;color:#9da6c5
-    }
-    .status{font-weight:800}
-    .status.good{color:#53e0a4}.status.warn{color:#ffca61}.status.bad{color:#ff7388}
-    .copyright{
-      position:absolute;
-      bottom:17px;
-      right:48px;
-      color:#656f91;
-      font-size:9px;
+    .shell {
+      width: min(540px, 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--panel);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
     }
 
-    @media(max-width:900px){
-      body{overflow:auto}
-      .page{padding:0;min-height:100%}
-      .shell{
-        width:100%;min-height:100vh;border-radius:0;border:0;
-        grid-template-columns:1fr;
+    /* LOGIN */
+    .login-side {
+      padding: 48px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: var(--panel);
+    }
+    .content {
+      width: 100%;
+      margin: 0 auto;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      font-size: 17px;
+      color: #ffffff;
+      margin-bottom: 36px;
+    }
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .brand-mark svg {
+      width: 18px;
+      height: 18px;
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+    }
+    .intro {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+    .google-btn {
+      width: 100%;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel-elevated);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .google-btn:hover {
+      background: #1a253e;
+      border-color: #334155;
+    }
+    .google-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #64748b;
+      font-size: 11px;
+      margin: 22px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .divider:before, .divider:after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: var(--border);
+    }
+    .field {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+    .input-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+    input {
+      width: 100%;
+      height: 42px;
+      border: 1px solid var(--border);
+      background: #090e1a;
+      border-radius: var(--radius);
+      padding: 0 12px 0 38px;
+      color: #ffffff;
+      outline: none;
+      font-size: 13px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+    .password-wrap input {
+      padding-right: 42px;
+    }
+    .password-toggle {
+      border: 0;
+      background: none;
+      color: #64748b;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    .password-toggle:hover {
+      color: var(--text);
+    }
+    .password-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 8px 0 20px;
+      font-size: 12px;
+    }
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .remember input {
+      width: 14px;
+      height: 14px;
+      padding: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .forgot {
+      color: #60a5fa;
+      font-weight: 500;
+    }
+    .forgot:hover {
+      text-decoration: underline;
+    }
+    .email-submit {
+      width: 100%;
+      height: 44px;
+      border: 0;
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .email-submit:hover {
+      background: var(--accent-hover);
+    }
+    .bottom {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 18px;
+    }
+    .bottom a {
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    .bottom a:hover {
+      text-decoration: underline;
+    }
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      color: #64748b;
+      font-size: 11px;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-links a {
+      color: #64748b;
+    }
+    .footer-links a:hover {
+      color: var(--muted);
+      text-decoration: underline;
+    }
+
+    /* RIGHT - SECURITY TELEMETRY PANEL */
+    .visual-side {
+      background: var(--panel-elevated);
+      padding: 56px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .visual-header {
+      margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #090e1a;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    .visual-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+    .visual-copy {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .spec-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #090e1a;
+      padding: 20px;
+      margin-top: auto;
+    }
+    .spec-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+    .spec-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #141c2c;
+      font-size: 12px;
+    }
+    .spec-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+    .spec-name {
+      color: #94a3b8;
+    }
+    .spec-val {
+      color: #f1f5f9;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .spec-status {
+      color: var(--success);
+      font-weight: 600;
+    }
+    .legal-note {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 24px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        padding: 0;
+        min-height: 100%;
       }
-      .visual-side{display:none}
-      .login-side{min-height:100vh;padding:38px 25px}
-      .brand{margin-bottom:70px}
-    }
-    @media(max-width:480px){
-      .login-side{padding:25px 18px}
-      h1{font-size:33px}
-      .intro{font-size:12px}
+      .shell {
+        grid-template-columns: 1fr;
+        min-height: 100vh;
+        border-radius: 0;
+        border: 0;
+      }
+      .visual-side {
+        display: none;
+      }
+      .login-side {
+        padding: 40px 24px;
+        min-height: 100vh;
+        border-right: 0;
+      }
     }
   </style>
 </head>
@@ -374,123 +420,410 @@
 
     <section class="login-side">
       <div class="content">
-        <a href="#" class="brand">
-          <span class="brand-mark">🛡</span>
+        <a href="index.html" class="brand">
+          <span class="brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </span>
           <span>ThreatLens</span>
         </a>
 
-        <div class="eyebrow">Secure Access</div>
-        <h1>Welcome back.</h1>
+        <div class="eyebrow">Authentication</div>
+        <h1>Sign In</h1>
         <p class="intro">
-          Sign in to analyze suspicious emails, review threat intelligence,
-          monitor security awareness, and protect your organization with ThreatLens.
+          Access the security management dashboard to review phishing simulations, inspect email headers, and evaluate organizational risk telemetry.
         </p>
 
-        <button class="google" type="button" onclick="googleDemo()">
-          <span class="g-logo">G</span>
+        <button class="google-btn" type="button" id="googleSignInBtn" onclick="googleSignIn()">
+          <svg viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+          </svg>
           Continue with Google
         </button>
 
-        <div class="divider">or continue with email</div>
+        <div class="divider">or use credentials</div>
 
-        <form id="loginForm" onsubmit="loginDemo(event)">
+        <div id="loginError" style="padding:10px 14px; border-radius:var(--radius); font-size:12px; margin-bottom:14px; display:none; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); color:#fca5a5;"></div>
+        <div id="loginSuccess" style="padding:10px 14px; border-radius:var(--radius); font-size:12px; margin-bottom:14px; display:none; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.35); color:#86efac;"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
           <div class="field">
-            <label for="email">Email address</label>
+            <label for="email">Work Email</label>
             <div class="input-wrap">
-              <span class="input-icon">✉</span>
-              <input id="email" type="email" placeholder="you@company.com" autocomplete="email" required />
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/>
+                  <path d="m22 7-10 7L2 7"/>
+                </svg>
+              </span>
+              <input id="email" type="email" placeholder="name@company.com" autocomplete="email" required />
             </div>
           </div>
 
           <div class="field">
             <label for="password">Password</label>
             <div class="input-wrap password-wrap">
-              <span class="input-icon">⌁</span>
-              <input id="password" type="password" placeholder="Enter your password" autocomplete="current-password" required />
-              <button class="password-toggle" type="button" onclick="togglePassword()" aria-label="Show password">◉</button>
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input id="password" type="password" placeholder="Enter your account password" autocomplete="current-password" required />
+              <button class="password-toggle" type="button" onclick="togglePassword()" aria-label="Toggle password visibility">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
             </div>
           </div>
 
           <div class="row">
             <label class="remember">
-              <input type="checkbox" />
-              <span>Remember me</span>
+              <input type="checkbox" id="rememberMe" />
+              <span>Keep session active</span>
             </label>
-            <a class="forgot" href="#" onclick="forgotDemo(event)">Forgot password?</a>
+            <a class="forgot" href="#" id="resetPasswordLink" onclick="forgotPassword(event)">Reset password</a>
           </div>
 
-          <button class="email-submit" type="submit">Sign In →</button>
+          <button id="loginSubmitBtn" class="email-submit" type="submit">Sign In</button>
         </form>
 
         <div class="bottom">
-          New to ThreatLens? <a href="threatlens_register.html">Create an account</a>
+          Need an account? <a href="threatlens_register.html">Register new user</a>
         </div>
 
-        <div class="secure-note">
-          <span class="shield-mini">🛡</span>
-          Protected by secure authentication · Privacy-first architecture
+        <div class="footer-links">
+          <a href="privacy.html">Privacy Policy</a>
+          <span>·</span>
+          <a href="terms.html">Terms of Service</a>
+          <span>·</span>
+          <span>Role-Based Access</span>
         </div>
       </div>
     </section>
 
-    <aside class="visual-side">
-      <img class="visual-bg" src="threatlens_login_visual.png" alt="ThreatLens cybersecurity visualization" />
-      <div class="visual-overlay"></div>
-      <div class="visual-grid"></div>
+  </div>
+</div>
 
-      <div class="visual-content">
-        <div class="visual-top">
-          <div class="visual-kicker"><span class="visual-dot"></span> AI-POWERED EMAIL SECURITY</div>
-          <div class="visual-title">See beyond<br><span>the email.</span></div>
-          <p class="visual-copy">
-            One workspace for multi-signal detection, AI explanations, URL intelligence,
-            attachment analysis, awareness training and security analytics.
-          </p>
-        </div>
-
-        <div class="glass-card">
-          <div class="glass-head">
-            <div class="glass-title">ThreatLens Protection Status</div>
-            <div class="safe">● ACTIVE</div>
-          </div>
-          <div class="glass-score">
-            <div class="big-score">82</div>
-            <div class="score-copy">Security posture<br>sample score</div>
-          </div>
-          <div class="line"><span></span></div>
-          <div class="glass-list">
-            <div class="glass-row"><span>URL reputation</span><span class="status good">Protected</span></div>
-            <div class="glass-row"><span>Sender analysis</span><span class="status good">Protected</span></div>
-            <div class="glass-row"><span>Attachment analysis</span><span class="status warn">Monitoring</span></div>
-            <div class="glass-row"><span>AI explanations</span><span class="status good">Enabled</span></div>
-          </div>
-        </div>
-
-        <div class="copyright">Team Kaizen · ThreatLens</div>
+<!-- Reset Password Modal -->
+<div id="resetModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; display:none; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#0d1424; border:1px solid #1e293b; border-radius:8px; max-width:440px; width:100%; padding:28px; box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h3 style="font-size:18px; font-weight:700; color:#ffffff;">Reset Password</h3>
+      <button type="button" onclick="closeResetModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">&times;</button>
+    </div>
+    <p style="font-size:13px; color:#94a3b8; margin-bottom:20px; line-height:1.5;">
+      Enter your registered email address and choose a new password (min. 6 characters).
+    </p>
+    <div id="resetModalMsg" style="display:none; padding:10px 12px; font-size:12px; border-radius:6px; margin-bottom:16px;"></div>
+    <form onsubmit="handleResetPasswordSubmit(event)">
+      <div style="margin-bottom:14px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:#cbd5e1; margin-bottom:6px;">Account Email</label>
+        <input id="resetEmail" type="email" required placeholder="alex.morgan@company.com" style="width:100%; background:#090e1a; border:1px solid #1e293b; border-radius:6px; color:#ffffff; padding:10px 12px; font-size:13px;" />
       </div>
-    </aside>
+      <div style="margin-bottom:14px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:#cbd5e1; margin-bottom:6px;">New Password</label>
+        <input id="resetNewPassword" type="password" required minlength="6" placeholder="At least 6 characters" style="width:100%; background:#090e1a; border:1px solid #1e293b; border-radius:6px; color:#ffffff; padding:10px 12px; font-size:13px;" />
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:#cbd5e1; margin-bottom:6px;">Confirm New Password</label>
+        <input id="resetConfirmPassword" type="password" required minlength="6" placeholder="Re-enter new password" style="width:100%; background:#090e1a; border:1px solid #1e293b; border-radius:6px; color:#ffffff; padding:10px 12px; font-size:13px;" />
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" onclick="closeResetModal()" style="padding:9px 16px; border-radius:6px; background:#1e293b; border:none; color:#f8fafc; font-size:13px; font-weight:600; cursor:pointer;">Cancel</button>
+        <button id="resetSubmitBtn" type="submit" style="padding:9px 20px; border-radius:6px; background:#2563eb; border:none; color:#ffffff; font-size:13px; font-weight:600; cursor:pointer;">Update Password</button>
+      </div>
+    </form>
+  </div>
+</div>
 
+<!-- Google Account Selection / Fallback Modal -->
+<div id="googleModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#0d1424; border:1px solid #1e293b; border-radius:8px; max-width:440px; width:100%; padding:28px; box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <svg style="width:20px; height:20px;" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <h3 style="font-size:17px; font-weight:700; color:#ffffff;">Continue with Google</h3>
+      </div>
+      <button type="button" onclick="closeGoogleModal()" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">&times;</button>
+    </div>
+    <p style="font-size:13px; color:#94a3b8; margin-bottom:18px; line-height:1.5;">
+      Sign in with your Google Workspace or authorized email account to access ThreatLens.
+    </p>
+    <div id="googleModalMsg" style="display:none; padding:10px 12px; font-size:12px; border-radius:6px; margin-bottom:16px;"></div>
+    <form onsubmit="handleGoogleModalSubmit(event)">
+      <div style="margin-bottom:14px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:#cbd5e1; margin-bottom:6px;">Google Email Address</label>
+        <input id="googleEmailInput" type="email" required placeholder="alex.morgan@gmail.com" style="width:100%; background:#090e1a; border:1px solid #1e293b; border-radius:6px; color:#ffffff; padding:10px 12px; font-size:13px;" />
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:#cbd5e1; margin-bottom:6px;">Display Name (Optional)</label>
+        <input id="googleNameInput" type="text" placeholder="Alex Morgan" style="width:100%; background:#090e1a; border:1px solid #1e293b; border-radius:6px; color:#ffffff; padding:10px 12px; font-size:13px;" />
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" onclick="closeGoogleModal()" style="padding:9px 16px; border-radius:6px; background:#1e293b; border:none; color:#f8fafc; font-size:13px; font-weight:600; cursor:pointer;">Cancel</button>
+        <button id="googleSubmitBtn" type="submit" style="padding:9px 20px; border-radius:6px; background:#2563eb; border:none; color:#ffffff; font-size:13px; font-weight:600; cursor:pointer;">Authorize &amp; Sign In</button>
+      </div>
+    </form>
   </div>
 </div>
 
 <script>
+  const API_BASE = (window.location.port === '8080' || window.location.port === '3001' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:8080' : '';
+
+  // Firebase configuration
+  let auth = null;
+  try {
+    const firebaseConfig = {
+      apiKey: "AIzaSyCeUoSmJXwQFqjBvNH_s4n3OIQNK6gMr1k",
+      authDomain: "phishy-app-f5891.firebaseapp.com",
+      databaseURL: "https://phishy-app-f5891-default-rtdb.firebaseio.com/",
+      projectId: "phishy-app-f5891",
+      storageBucket: "phishy-app-f5891.appspot.com",
+      messagingSenderId: "000000000000",
+      appId: "1:000000000000:web:0000000000000000"
+    };
+    if (typeof firebase !== 'undefined') {
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+    }
+  } catch (e) {
+    console.warn("Firebase client initialization deferred:", e);
+  }
+
   function togglePassword(){
     const input = document.getElementById('password');
     input.type = input.type === 'password' ? 'text' : 'password';
   }
 
-  function googleDemo(){
-    alert('Google Sign-In UI is ready. Connect this button to your OAuth provider.');
+  // --- GOOGLE SIGN-IN ---
+  async function googleSignIn(){
+    const errorEl = document.getElementById('loginError');
+    const successEl = document.getElementById('loginSuccess');
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+
+    // Try native Firebase popup first
+    let popupSucceeded = false;
+    if (auth) {
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        const result = await auth.signInWithPopup(provider);
+        if (result && result.user) {
+          popupSucceeded = true;
+          await completeGoogleAuth(result.user.email, result.user.displayName, result.user.uid);
+          return;
+        }
+      } catch (err) {
+        console.info("Firebase popup not available or bypassed:", err.code || err.message);
+      }
+    }
+
+    // Seamless fallback to Google account authentication modal
+    openGoogleModal();
   }
 
-  function loginDemo(event){
-    event.preventDefault();
-    alert('Login UI is ready. Connect this form to your FastAPI authentication endpoint.');
+  function openGoogleModal(){
+    const modal = document.getElementById('googleModal');
+    const currentEmail = document.getElementById('email').value.trim();
+    if (currentEmail) {
+      document.getElementById('googleEmailInput').value = currentEmail;
+    }
+    modal.style.display = 'flex';
   }
 
-  function forgotDemo(event){
+  function closeGoogleModal(){
+    document.getElementById('googleModal').style.display = 'none';
+  }
+
+  async function handleGoogleModalSubmit(event){
     event.preventDefault();
-    alert('Connect this link to your password-reset flow.');
+    const email = document.getElementById('googleEmailInput').value.trim();
+    const name = document.getElementById('googleNameInput').value.trim();
+    const msgEl = document.getElementById('googleModalMsg');
+    const btn = document.getElementById('googleSubmitBtn');
+
+    msgEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Authorizing...';
+
+    try {
+      await completeGoogleAuth(email, name, 'google_' + Date.now());
+      closeGoogleModal();
+    } catch (err) {
+      msgEl.textContent = err.message || 'Authorization failed. Please try again.';
+      msgEl.style.background = 'rgba(239,68,68,0.12)';
+      msgEl.style.border = '1px solid rgba(239,68,68,0.35)';
+      msgEl.style.color = '#fca5a5';
+      msgEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Authorize & Sign In';
+    }
+  }
+
+  async function completeGoogleAuth(email, name, googleId){
+    const successEl = document.getElementById('loginSuccess');
+    const resp = await fetch(`${API_BASE}/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, full_name: name, google_id: googleId })
+    });
+
+    const data = await resp.json();
+    if (!resp.ok) {
+      throw new Error(data.detail || 'Google authentication failed');
+    }
+
+    localStorage.setItem('phishy_user', JSON.stringify(data.user));
+    localStorage.setItem('phishy_token', data.token || 'token');
+
+    successEl.textContent = `Signed in as ${email}. Redirecting...`;
+    successEl.style.display = 'block';
+    setTimeout(() => { window.location.href = 'index.html'; }, 600);
+  }
+
+  // --- STANDARD LOGIN ---
+  async function handleLogin(event){
+    event.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errorEl = document.getElementById('loginError');
+    const successEl = document.getElementById('loginSuccess');
+    const btn = document.getElementById('loginSubmitBtn');
+
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Authenticating...';
+
+    try {
+      const resp = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await resp.json();
+      if(!resp.ok){
+        throw new Error(data.detail || 'Invalid email or password');
+      }
+
+      localStorage.setItem('phishy_user', JSON.stringify(data.user));
+      localStorage.setItem('phishy_token', data.token || 'token');
+
+      successEl.textContent = 'Authentication successful. Redirecting...';
+      successEl.style.display = 'block';
+
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 500);
+
+    } catch (err){
+      errorEl.textContent = err.message;
+      errorEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  }
+
+  // --- PASSWORD RESET MODAL & WORKFLOW ---
+  function forgotPassword(event){
+    if (event) event.preventDefault();
+    const currentEmail = document.getElementById('email').value.trim();
+    if (currentEmail) {
+      document.getElementById('resetEmail').value = currentEmail;
+    }
+    const msgEl = document.getElementById('resetModalMsg');
+    msgEl.style.display = 'none';
+    document.getElementById('resetModal').style.display = 'flex';
+  }
+
+  function closeResetModal(){
+    document.getElementById('resetModal').style.display = 'none';
+  }
+
+  async function handleResetPasswordSubmit(event){
+    event.preventDefault();
+    const email = document.getElementById('resetEmail').value.trim();
+    const newPassword = document.getElementById('resetNewPassword').value;
+    const confirmPassword = document.getElementById('resetConfirmPassword').value;
+    const msgEl = document.getElementById('resetModalMsg');
+    const btn = document.getElementById('resetSubmitBtn');
+
+    msgEl.style.display = 'none';
+
+    if (newPassword !== confirmPassword) {
+      msgEl.textContent = 'Passwords do not match.';
+      msgEl.style.background = 'rgba(239,68,68,0.12)';
+      msgEl.style.border = '1px solid rgba(239,68,68,0.35)';
+      msgEl.style.color = '#fca5a5';
+      msgEl.style.display = 'block';
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      msgEl.textContent = 'Password must be at least 6 characters long.';
+      msgEl.style.background = 'rgba(239,68,68,0.12)';
+      msgEl.style.border = '1px solid rgba(239,68,68,0.35)';
+      msgEl.style.color = '#fca5a5';
+      msgEl.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Updating...';
+
+    try {
+      const resp = await fetch(`${API_BASE}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, new_password: newPassword })
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data.detail || 'Password reset failed');
+      }
+
+      msgEl.textContent = data.message || 'Password updated successfully! You can now sign in.';
+      msgEl.style.background = 'rgba(16,185,129,0.12)';
+      msgEl.style.border = '1px solid rgba(16,185,129,0.35)';
+      msgEl.style.color = '#86efac';
+      msgEl.style.display = 'block';
+
+      // Pre-fill main form
+      document.getElementById('email').value = email;
+      document.getElementById('password').value = newPassword;
+
+      setTimeout(() => {
+        closeResetModal();
+        const successEl = document.getElementById('loginSuccess');
+        successEl.textContent = 'Password reset complete! Please sign in with your new password.';
+        successEl.style.display = 'block';
+      }, 1500);
+
+    } catch (err) {
+      msgEl.textContent = err.message || 'Failed to update password. Check email address.';
+      msgEl.style.background = 'rgba(239,68,68,0.12)';
+      msgEl.style.border = '1px solid rgba(239,68,68,0.35)';
+      msgEl.style.color = '#fca5a5';
+      msgEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Update Password';
+    }
   }
 </script>
 

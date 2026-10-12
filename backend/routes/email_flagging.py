@@ -202,7 +202,7 @@ def save_tunnel_status(status: TunnelStatus):
         logger.error(f"Error saving tunnel status: {e}")
 
 def log_flagged_email(flag_request: EmailFlagRequest, analysis_result: EmailAnalysisResult):
-    """Log flagged email to CSV and SQLite DB"""
+    """Log flagged email to CSV and Firebase DB"""
     try:
         with open(FLAGGED_EMAILS_FILE, mode="a", newline="", encoding='utf-8') as file:
             writer = csv.writer(file)
@@ -238,7 +238,7 @@ def log_flagged_email(flag_request: EmailFlagRequest, analysis_result: EmailAnal
             flag_request.additional_context
         )
     except Exception as e:
-        logger.error(f"Failed to log flagged email to SQLite DB: {e}")
+        logger.error(f"Failed to log flagged email to Firebase DB: {e}")
 
 async def analyze_email_with_ai(flag_request: EmailFlagRequest) -> EmailAnalysisResult:
     """Analyze flagged email using AI (placeholder for actual AI integration)"""
@@ -328,31 +328,11 @@ async def get_flagged_emails(
     days: Optional[int] = None
 ):
     """
-    Retrieve flagged emails from SQLite database with optional filtering
+    Retrieve flagged emails from Firebase database with optional filtering
     """
     try:
-        from database import get_db_connection
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        query = "SELECT * FROM flagged_emails WHERE 1=1"
-        params = []
-        
-        if category:
-            query += " AND flag_category = ?"
-            params.append(category)
-        if user_email:
-            query += " AND user_email = ?"
-            params.append(user_email)
-            
-        query += " ORDER BY id DESC LIMIT ?"
-        params.append(limit or 100)
-        
-        cursor.execute(query, tuple(params))
-        rows = cursor.fetchall()
-        conn.close()
-        
-        flagged_emails = [dict(row) for row in rows]
+        from database import db_get_flagged_emails
+        flagged_emails = db_get_flagged_emails(limit=limit or 100, category=category, user_email=user_email)
         
         return JSONResponse(content={
             "status": "success",
@@ -363,7 +343,7 @@ async def get_flagged_emails(
         })
         
     except Exception as e:
-        logger.error(f"Error retrieving flagged emails from SQLite DB: {e}")
+        logger.error(f"Error retrieving flagged emails from Firebase DB: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to retrieve flagged emails: {str(e)}")
 
 @router.post("/plugins/register")

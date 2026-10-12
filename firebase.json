@@ -1,6 +1,7 @@
 {
   "hosting": {
     "public": "frontend",
+    "cleanUrls": true,
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -51,6 +52,27 @@
       },
       {
         "source": "/smart/**",
+        "run": {
+          "serviceId": "phishy-backend",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/auth/**",
+        "run": {
+          "serviceId": "phishy-backend",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/email-track/**",
+        "run": {
+          "serviceId": "phishy-backend",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/email-flagging/**",
         "run": {
           "serviceId": "phishy-backend",
           "region": "us-central1"

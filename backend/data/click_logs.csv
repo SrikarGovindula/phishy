@@ -1,0 +1,4 @@
+timestamp,user_email,action_id,ip_address,user_agent,referer
+2026-10-12T12:51:03.086319,victim.sim@company.com,sim_campaign_001,testclient,testclient,direct
+2026-10-12T12:53:22.978450,victim.sim@company.com,sim_campaign_001,testclient,testclient,direct
+2026-10-12T13:10:28.914887,victim.sim@company.com,sim_campaign_001,testclient,testclient,direct

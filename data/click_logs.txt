@@ -1,0 +1,2 @@
+2026-10-12 19:43:09,822 - INFO - 2026-10-12T14:13:09.822559 - victim.sim@company.com - sim_campaign_001 - testclient - testclient
+2026-10-12 19:58:37,440 - INFO - 2026-10-12T14:28:37.440664 - victim.sim@company.com - sim_campaign_001 - testclient - testclient

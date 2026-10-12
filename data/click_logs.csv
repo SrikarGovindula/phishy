@@ -1,2 +1,4 @@
 timestamp,user_email,action_id,ip_address,user_agent,referer
 2025-08-16T07:34:54.088421,thomasraisen122@gmail.com,phish-ec55fc3f,103.160.233.171,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",direct
+2026-10-12T14:13:09.822559,victim.sim@company.com,sim_campaign_001,testclient,testclient,direct
+2026-10-12T14:28:37.440664,victim.sim@company.com,sim_campaign_001,testclient,testclient,direct

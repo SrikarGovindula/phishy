@@ -49,7 +49,7 @@ def get_client_info(request: Request) -> Dict[str, str]:
     }
 
 def log_click_to_csv(timestamp: str, user_email: str, action_id: str, client_info: Dict[str, str]):
-    """Log click data to CSV file and SQLite database"""
+    """Log click data to CSV file and Firebase database"""
     try:
         with open(LOG_FILE, mode="a", newline="", encoding='utf-8') as file:
             writer = csv.writer(file)
@@ -66,9 +66,9 @@ def log_click_to_csv(timestamp: str, user_email: str, action_id: str, client_inf
         
     try:
         from database import db_add_click_log
-        db_add_click_log(user_email, action_id, client_info["ip_address"], client_info["user_agent"], client_info["referer"])
+        db_add_click_log(user_email, action_id, client_info["ip_address"], client_info["user_agent"], client_info["referer"], timestamp=timestamp)
     except Exception as e:
-        logger.error(f"Failed to write click log to SQLite DB: {e}")
+        logger.error(f"Failed to write click log to Firebase DB: {e}")
 
 @router.get("/click")
 def track_click(
@@ -114,31 +114,11 @@ def get_click_logs(
     format: str = Query("json", pattern="^(json|csv)$", description="Response format")
 ):
     """
-    Retrieve click logs directly from SQLite Database with optional filtering
+    Retrieve click logs directly from Firebase Database with optional filtering
     """
     try:
-        from database import get_db_connection
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        query = "SELECT timestamp, user_email, action_id, ip_address, user_agent, referer FROM click_logs WHERE 1=1"
-        params = []
-        
-        if user_email:
-            query += " AND user_email LIKE ?"
-            params.append(f"%{user_email}%")
-        if action_id:
-            query += " AND action_id LIKE ?"
-            params.append(f"%{action_id}%")
-            
-        query += " ORDER BY id DESC LIMIT ?"
-        params.append(limit)
-        
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-        conn.close()
-        
-        records = [dict(row) for row in rows]
+        from database import db_get_click_logs
+        records = db_get_click_logs(limit=limit or 100, user_email=user_email, action_id=action_id, days=days)
 
         if format == "csv":
             df = pd.DataFrame(records)
@@ -151,7 +131,7 @@ def get_click_logs(
             )
         else:
             return JSONResponse(content={
-                "message": f"Retrieved {len(records)} log entries from SQLite DB",
+                "message": f"Retrieved {len(records)} log entries from Firebase DB",
                 "total_records": len(records),
                 "filters_applied": {
                     "user_email": user_email,
@@ -159,6 +139,7 @@ def get_click_logs(
                     "days_back": days,
                     "limit": limit
                 },
+                "records": records,
                 "data": records
             })
 

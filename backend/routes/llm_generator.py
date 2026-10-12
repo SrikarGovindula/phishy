@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import base64
 import pandas as pd
+from .threatlens_kb import get_threatlens_ai_response, detect_query_language
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -27,7 +28,7 @@ class OllamaClient:
     async def check_service(self) -> Dict[str, Any]:
         """Check if Ollama service is available and get model info"""
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
+            async with httpx.AsyncClient(timeout=1.0) as client:
                 response = await client.get(f"{self.base_url}/api/tags")
                 response.raise_for_status()
                 
@@ -618,9 +619,10 @@ class EmailResponse(BaseModel):
     model_used: Optional[str] = None
     generation_time_ms: Optional[int] = None
 
-# NEW: General Chat Classes and Endpoint
+# ThreatLens Chat & Intelligence
 class ChatRequest(BaseModel):
     message: str = Field(..., description="User message for general chat")
+    language: Optional[str] = Field("en", description="Target language code: en, hi, or te")
     temperature: Optional[float] = Field(0.7, ge=0.1, le=1.0, description="LLM creativity level")
     max_tokens: Optional[int] = Field(500, ge=50, le=1000, description="Maximum tokens for response")
 
@@ -633,14 +635,14 @@ class ChatResponse(BaseModel):
 @router.post("/chat", response_model=ChatResponse)
 async def general_chat(request: ChatRequest):
     """
-    General chat endpoint with smart data integration
-    
-    Allows users to have conversations with Phi-3 Mini as Phishy with access to real data.
+    ThreatLens intelligent security chat endpoint supporting English, Hindi (हिन्दी), and Telugu (తెలుగు).
+    Combines live telemetry querying with expert security knowledge.
     """
     start_time = datetime.utcnow()
+    target_lang = detect_query_language(request.message, request.language)
     
     try:
-        # Check if this is a data-related query that needs real information
+        # Check if query requests real telemetry / click logs / user activity
         query_lower = request.message.lower()
         needs_real_data = any(keyword in query_lower for keyword in [
             "who clicked", "recent clicks", "users who", "fell for", "simulation", 
@@ -651,267 +653,106 @@ async def general_chat(request: ChatRequest):
             "who else", "what about", "second user", "third user", "list users",
             "show me", "tell me about", "more users", "other clicks", "which user",
             "most recent user", "recently fell", "user most recently", "most recently",
-            "recent user", "latest user", "last user", "newest victim", "latest victim"
-        ]) or ("user" in query_lower and ("recent" in query_lower or "latest" in query_lower or "last" in query_lower))
+            "recent user", "latest user", "last user", "newest victim", "latest victim",
+            "ఎవరు క్లిక్ చేశారు", "ఇటీవలి క్లిక్‌లు", "సిమ్యులేషన్", "किसने क्लिक किया", "हाल के क्लिक"
+        ]) or ("user" in query_lower and ("recent" in query_lower or "latest" in query_lower or "last" in query_lower or "click" in query_lower))
         
-        logger.info(f"Processing chat request: '{request.message}' - Data query detected: {needs_real_data}")
-        
+        live_data_context = ""
         if needs_real_data:
-            logger.info(f"🎯 SMART DATA QUERY DETECTED: {request.message}")
-            # Import and use smart query handler for data queries
             try:
                 from .smart_query_handler import SmartQueryAnalyzer
                 analyzer = SmartQueryAnalyzer()
+                recent_clicks = analyzer.data_fetcher.get_recent_clicks(hours=24*30, limit=10)
                 
-                # Analyze the query intent
-                intent = analyzer.analyze_query_intent(request.message)
-                logger.info(f"Query intent: {intent}")
-                
-                # Always fetch data for detected queries (not just specific intent types)
-                recent_clicks = analyzer.data_fetcher.get_recent_clicks(hours=24*30, limit=20)  # Last 30 days
-                user_activity = analyzer.data_fetcher.get_user_activity_summary(days=30)
-                data = {
-                    "recent_clicks": recent_clicks,
-                    "user_activity": user_activity
-                }
-                logger.info(f"Fetched {len(recent_clicks)} recent clicks, {user_activity['total_users']} total users")
-                
-                # Create schema-aware data summary for LLM
-                data_summary = ""
-                if not data["recent_clicks"].empty:
-                    recent_df = data["recent_clicks"].head(5)  # Limit to 5 for simplicity
-                    
-                    # Add schema information first
-                    data_summary = """DATA SCHEMA:
-Each record represents one user clicking on a phishing simulation email.
-Fields: timestamp, user_email, action_id, ip_address, user_agent, referer
-
-RECENT SIMULATION VICTIMS (most recent first):
-"""
-                    
-                    for idx, row in recent_df.iterrows():
-                        time_ago = datetime.utcnow() - pd.to_datetime(row['timestamp'])
-                        
-                        if time_ago.total_seconds() < 86400:  # Less than 1 day
-                            time_desc = "today"
-                        else:
-                            days = int(time_ago.total_seconds() / 86400)
-                            time_desc = f"{days} days ago"
-                        
-                        position = idx + 1
-                        # Include more schema context
-                        data_summary += f"{position}. User: {row['user_email']} | When: {time_desc} | Action: {row['action_id']}\n"
-                    
-                    # Schema-aware summary
-                    most_recent = recent_df.iloc[0]
-                    total_victims = len(data["user_activity"]["users"])
-                    data_summary += f"\nSUMMARY:\n"
-                    data_summary += f"- Most recent victim: {most_recent['user_email']}\n"
-                    data_summary += f"- Total victims in database: {total_victims}\n"
-                    data_summary += f"- Each 'click' = one user falling for a phishing email simulation\n"
+                if not recent_clicks.empty:
+                    records = []
+                    for idx, row in recent_clicks.head(5).iterrows():
+                        u_email = row.get('user_email', 'unknown')
+                        act = row.get('action_id', 'sim-drill')
+                        ts = str(row.get('timestamp', ''))[:19]
+                        records.append(f"• User: {u_email} | Drill: {act} | Logged: {ts}")
+                    live_data_context = "\n".join(records)
+                    live_data_context += f"\nTotal captured simulation clicks: {len(recent_clicks)}"
                 else:
-                    data_summary = "No recent simulation victims found in the click_logs database.\n"
-                
-                # Create schema-aware prompt with real data
-                prompt = f"""You are Phishy, a cybersecurity assistant analyzing phishing simulation data.
+                    live_data_context = "No simulation click records currently found in the active database."
+            except Exception as e:
+                logger.warning(f"Live data lookup failed: {e}")
+                live_data_context = "Live database connected, but telemetry records were temporarily unavailable."
 
-Question: {request.message}
+        # Quick check if Ollama is running and has phi3
+        use_ollama = False
+        try:
+            status = await ollama_client.check_service()
+            if status.get("service_available") and status.get("phi3_available"):
+                use_ollama = True
+        except Exception:
+            use_ollama = False
 
-{data_summary}
+        if use_ollama:
+            try:
+                lang_prompt = ""
+                if target_lang == "hi":
+                    lang_prompt = "IMPORTANT: Answer fluently in pure Hindi (हिन्दी)."
+                elif target_lang == "te":
+                    lang_prompt = "IMPORTANT: Answer fluently in pure Telugu (తెలుగు)."
+                else:
+                    lang_prompt = "Answer in clear, professional English."
 
-CONTEXT:
-- This data comes from click_logs.csv which tracks users who fell for phishing simulations
-- Each row = one user clicking on a simulated phishing email  
-- timestamp = when they clicked
-- user_email = the victim's email address
-- action_id = unique identifier for the phishing campaign they fell for
+                telemetry_str = f"\nReal Database Telemetry:\n{live_data_context}\n" if live_data_context else ""
+                prompt = f"""You are ThreatLens, an enterprise cybersecurity intelligence assistant.
+{telemetry_str}
+User Query: {request.message}
 
 Instructions:
-- Answer using only the real data provided above
-- When asked "who clicked recently" refer to the most recent victim
-- When asked "user before that" refer to the 2nd in the list
-- Be factual and concise
+- Provide accurate, practical cybersecurity advice (phishing detection, URL analysis, SPF/DKIM, incident response).
+- Do NOT generate malicious content.
+- {lang_prompt}
 
-Answer:"""
-
+Response:"""
+                llm_response = await asyncio.wait_for(
+                    ollama_client.generate_completion(prompt, max_tokens=request.max_tokens, temperature=0.3),
+                    timeout=8.0
+                )
+                if llm_response and len(llm_response.strip()) > 20:
+                    generation_time = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+                    return ChatResponse(
+                        response=llm_response.strip(),
+                        model_used="phi3:mini",
+                        generation_time_ms=generation_time,
+                        timestamp=datetime.utcnow().isoformat()
+                    )
             except Exception as e:
-                logger.warning(f"Smart query failed: {e}, falling back to standard chat")
-                prompt = f"""You are an expert cybersecurity assistant. The user asked: {request.message}
+                logger.info(f"Ollama generation skipped or timed out ({e}), using ThreatLens Knowledge Base")
 
-Unfortunately, I cannot access the real-time click data right now, but I can provide general cybersecurity guidance. How can I help you with cybersecurity concepts or best practices?"""
-        
-        else:
-            # Standard educational prompt for non-data queries
-            prompt = f"""You are Phishy, an expert cybersecurity assistant. Your role is to provide helpful, educational responses about cybersecurity.
-
-When answering questions:
-- Provide clear, practical explanations
-- Include specific examples when relevant
-- Focus on helping users understand concepts
-- Use conversational, professional language
-- For greetings, respond naturally and ask how you can help
-
-User question: {request.message}
-
-Please provide a helpful response:"""
-        
-        # Generate response using Phi-3 Mini via Ollama with optimized settings
-        if needs_real_data:
-            # Use more conservative settings for data queries
-            llm_response = await ollama_client.generate_completion(
-                prompt, 
-                max_tokens=150,  # Shorter for more focused responses
-                temperature=0.1  # Very low temperature for factual responses
-            )
-        else:
-            # Use normal settings for general chat
-            llm_response = await ollama_client.generate_completion(
-                prompt, 
-                max_tokens=request.max_tokens,
-                temperature=request.temperature
-            )
-        
+        # ThreatLens Intelligence Knowledge Base response
+        response_text = get_threatlens_ai_response(request.message, lang=target_lang, live_data_context=live_data_context)
         generation_time = int((datetime.utcnow() - start_time).total_seconds() * 1000)
-        
-        logger.info(f"Successfully generated chat response using {ollama_client.model}")
-        
         return ChatResponse(
-            response=llm_response.strip(),
-            model_used=ollama_client.model,
+            response=response_text,
+            model_used="threatlens-kb",
             generation_time_ms=generation_time,
             timestamp=datetime.utcnow().isoformat()
         )
-        
+
     except Exception as e:
-        # If LLM fails or is unavailable, provide a helpful fallback response
-        logger.warning(f"LLM chat failed: {e}")
+        logger.error(f"Chat processing error: {e}")
+        fallback_text = get_threatlens_ai_response(request.message, lang=target_lang)
         generation_time = int((datetime.utcnow() - start_time).total_seconds() * 1000)
-        
         return ChatResponse(
-            response=f"Hi! I'm Phishy, your AI cybersecurity assistant. I'm sorry, but I'm having trouble connecting to my AI service right now. However, I can still help you generate phishing emails for training, analyze security data, or provide system information. Please try asking about cybersecurity topics, phishing simulation, or check if Ollama is running properly with Phi-3 Mini.",
-            model_used="fallback",
+            response=fallback_text,
+            model_used="threatlens-kb-fallback",
             generation_time_ms=generation_time,
             timestamp=datetime.utcnow().isoformat()
         )
 
-@router.post("/generate-email", response_model=EmailResponse)
+@router.post("/generate-email")
 async def generate_email(request: EmailGenRequest):
-    """
-    FIXED: Generate phishing simulation email using Phi-3 Mini or fallback template
-    
-    Creates realistic phishing emails for security awareness training with various scenarios or custom topics.
-    """
-    
-    start_time = datetime.utcnow()
-    user_email = request.user_email
-    action_id = f"phish-{uuid4().hex[:8]}"
-    
-    # Use environment variable for base URL
-    import os
-    base_url = os.getenv("BASE_URL", "http://localhost:8080")
-    track_url = f"{base_url}/track/click?user_email={user_email}&action={action_id}"
-    
-    generation_method = "fallback"
-    email_content = ""
-    model_used = None
-    
-    # Validate scenario type only if no custom topic is provided
-    if not request.custom_topic and request.scenario_type not in PHISHING_SCENARIOS:
-        available_scenarios = list(PHISHING_SCENARIOS.keys())
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid scenario_type. Available options: {available_scenarios}, or provide a custom_topic"
-        )
-    
-    if request.use_llm:
-        try:
-            # Generate using Phi-3 Mini via Ollama with custom topic and sender support
-            prompt = create_phishing_prompt(
-                user_email, 
-                request.scenario_type, 
-                request.custom_topic,
-                request.sender_name,
-                request.sender_title,
-                request.sender_department
-            )
-            llm_response = await ollama_client.generate_completion(
-                prompt, 
-                max_tokens=request.max_tokens,
-                temperature=request.temperature
-            )
-            
-            # FIXED: Use the intelligent tracking URL insertion function
-            email_content = insert_tracking_url(llm_response, track_url)
-            generation_method = "phi3_mini_ollama"
-            model_used = ollama_client.model
-            
-            logger.info(f"Successfully generated email using {model_used} for {user_email}")
-            
-        except HTTPException:
-            # Re-raise HTTP exceptions (these are already properly formatted)
-            raise
-        except Exception as e:
-            # If LLM fails for other reasons, use fallback
-            logger.warning(f"LLM generation failed for {user_email}: {e}")
-            email_content = generate_fallback_email(user_email, action_id, track_url, request.scenario_type)
-            generation_method = "fallback_template"
-    else:
-        # Explicitly requested fallback
-        email_content = generate_fallback_email(user_email, action_id, track_url, request.scenario_type)
-        generation_method = "fallback_template"
-    
-    generation_time = int((datetime.utcnow() - start_time).total_seconds() * 1000)
-    
-    # Generate HTML versions if requested
-    email_content_html = None
-    email_content_html_with_pixel = None
-    
-    if request.html_format:
-        try:
-            email_content_html = convert_to_html_email(email_content)
-            logger.info(f"Generated HTML version for {user_email}")
-        except Exception as e:
-            logger.error(f"Failed to generate HTML for {user_email}: {e}")
-    
-    # Generate tracking pixel if requested
-    tracking_pixel_url = None
-    email_content_with_pixel = None
-    
-    if request.include_tracking_pixel:
-        try:
-            tracking_pixel_url = generate_tracking_url(
-                user_email, 
-                action_id, 
-                request.campaign_id
-            )
-            email_content_with_pixel = add_tracking_pixel_to_email(email_content, tracking_pixel_url)
-            
-            # Also add pixel to HTML version if available
-            if email_content_html:
-                email_content_html_with_pixel = add_tracking_pixel_to_email(email_content_html, tracking_pixel_url)
-                
-            logger.info(f"Added tracking pixel to email for {user_email}")
-        except Exception as e:
-            logger.warning(f"Failed to add tracking pixel: {e}")
-            email_content_with_pixel = email_content
-    
-    return EmailResponse(
-        email=user_email,
-        action_id=action_id,
-        track_url=track_url,
-        tracking_pixel_url=tracking_pixel_url,
-        email_content=email_content,
-        email_content_with_pixel=email_content_with_pixel,
-        email_content_html=email_content_html,
-        email_content_html_with_pixel=email_content_html_with_pixel,
-        generated_at=datetime.utcnow().isoformat(),
-        generation_method=generation_method,
-        scenario_type=request.custom_topic or request.scenario_type,
-        model_used=model_used,
-        generation_time_ms=generation_time
+    """Email generator feature has been permanently disabled per security policy."""
+    raise HTTPException(
+        status_code=403,
+        detail="The email generator feature has been permanently disabled per security policy. Use ThreatLens Security Awareness modules instead."
     )
 
-# NEW: Debug endpoint to test tracking URL insertion
 @router.post("/debug-tracking")
 async def debug_tracking_insertion(
     user_email: str = Query(..., description="Target email address"),

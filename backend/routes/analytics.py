@@ -62,12 +62,10 @@ class AdvancedAnalytics:
         self.last_cache_update = None
     
     def load_data_pandas(self) -> pd.DataFrame:
-        """Load data directly from SQLite Database using Pandas"""
+        """Load data directly from Firebase Database using Pandas"""
         try:
-            from database import get_db_connection
-            conn = get_db_connection()
-            df = pd.read_sql_query("SELECT timestamp, user_email, action_id, ip_address, user_agent, referer FROM click_logs", conn)
-            conn.close()
+            from database import db_get_click_logs_df
+            df = db_get_click_logs_df()
             if df.empty:
                 return self._create_sample_data_pandas()
             df['timestamp'] = pd.to_datetime(df['timestamp'])

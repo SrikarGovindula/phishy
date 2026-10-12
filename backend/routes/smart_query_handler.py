@@ -46,12 +46,10 @@ class SmartDataFetcher:
         self.click_logs_file = self.data_dir / "click_logs.csv"
         
     def get_recent_clicks(self, hours: int = 24, limit: Optional[int] = None) -> pd.DataFrame:
-        """Get recent click data directly from SQLite Database"""
+        """Get recent click data directly from Firebase Database"""
         try:
-            from database import get_db_connection
-            conn = get_db_connection()
-            df = pd.read_sql_query("SELECT timestamp, user_email, action_id, ip_address, user_agent, referer FROM click_logs", conn)
-            conn.close()
+            from database import db_get_click_logs_df
+            df = db_get_click_logs_df()
             if df.empty:
                 return df
                 
@@ -68,18 +66,14 @@ class SmartDataFetcher:
             return recent_df
             
         except Exception as e:
-            logger.error(f"Error fetching recent clicks from SQLite DB: {e}")
+            logger.error(f"Error fetching recent clicks from Firebase DB: {e}")
             return pd.DataFrame()
     
     def get_user_activity_summary(self, days: int = 7) -> Dict[str, Any]:
-        """Get user activity patterns directly from SQLite Database"""
+        """Get user activity patterns directly from Firebase Database"""
         try:
-            from database import get_db_connection
-            conn = get_db_connection()
-            df = pd.read_sql_query("SELECT timestamp, user_email, action_id, ip_address, user_agent, referer FROM click_logs", conn)
-            conn.close()
-            if df.empty:
-                return {"users": [], "total_users": 0, "total_clicks": 0}
+            from database import db_get_click_logs_df
+            df = db_get_click_logs_df()
             if df.empty:
                 return {"users": [], "total_users": 0, "total_clicks": 0}
                 

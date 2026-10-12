@@ -13,6 +13,8 @@ __pycache__/
 
 # Virtual environments
 .venv/
+.venv*/
+backend/.venv*/
 venv/
 env/
 ENV/
@@ -35,14 +37,14 @@ service-account.json
 firebase-service-account.json
 
 # ------------------------------
-# SQLite / Local Databases
+# Local Databases & Persistence
 # ------------------------------
 *.db
 *.sqlite
 *.sqlite3
-
-# Phishy local database
-backend/data/
+backend/data/*.json
+backend/data/*.tmp
+backend/data/*.backup*
 
 # ------------------------------
 # Logs

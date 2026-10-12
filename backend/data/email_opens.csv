@@ -1,0 +1,5 @@
+timestamp,user_email,action_id,ip_address,user_agent,campaign_id
+2026-10-12T12:53:23.109174,open.recipient@company.com,action_open_001,testclient,testclient,
+2026-10-12T13:10:28.968459,open.recipient@company.com,action_open_001,testclient,testclient,
+2026-10-12T14:13:10.595500,open.recipient@company.com,action_open_001,testclient,testclient,
+2026-10-12T14:28:38.246262,open.recipient@company.com,action_open_001,testclient,testclient,

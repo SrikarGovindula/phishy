@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account - ThreatLens Security Platform</title>
+  <meta name="description" content="Register for ThreatLens, an enterprise email security and phishing simulation platform backed by Firebase Realtime Database." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <style>
+    :root {
+      --bg: #070b14;
+      --panel: #0d1424;
+      --panel-elevated: #131c31;
+      --border: #1e293b;
+      --border-focus: #3b82f6;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius: 6px;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    button, input, select {
+      font: inherit;
+    }
+    .page {
+      width: min(1360px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .shell {
+      width: min(560px, 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--panel);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+    }
+
+    /* REGISTER */
+    .register-side {
+      padding: 48px 52px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: var(--panel);
+    }
+    .content {
+      width: 100%;
+      margin: 0 auto;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      font-size: 17px;
+      color: #ffffff;
+      margin-bottom: 24px;
+    }
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .brand-mark svg {
+      width: 18px;
+      height: 18px;
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+    }
+    .intro {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .field {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+    .input-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+    input, select {
+      width: 100%;
+      height: 42px;
+      border: 1px solid var(--border);
+      background: #090e1a;
+      border-radius: var(--radius);
+      padding: 0 12px 0 38px;
+      color: #ffffff;
+      outline: none;
+      font-size: 13px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 14px;
+      cursor: pointer;
+    }
+    select option {
+      background: #090e1a;
+      color: #ffffff;
+    }
+    input:focus, select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+    .password-wrap input {
+      padding-right: 42px;
+    }
+    .password-toggle {
+      border: 0;
+      background: none;
+      color: #64748b;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    .password-toggle:hover {
+      color: var(--text);
+    }
+    .password-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
+    .terms-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 16px 0 20px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .terms-row input {
+      width: 14px;
+      height: 14px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .terms-row a {
+      color: #60a5fa;
+    }
+    .terms-row a:hover {
+      text-decoration: underline;
+    }
+    .submit-btn {
+      width: 100%;
+      height: 44px;
+      border: 0;
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .submit-btn:hover {
+      background: var(--accent-hover);
+    }
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .bottom {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 18px;
+    }
+    .bottom a {
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    .bottom a:hover {
+      text-decoration: underline;
+    }
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      color: #64748b;
+      font-size: 11px;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-links a {
+      color: #64748b;
+    }
+    .footer-links a:hover {
+      color: var(--muted);
+      text-decoration: underline;
+    }
+
+    /* RIGHT - ONBOARDING SPECIFICATIONS */
+    .visual-side {
+      background: var(--panel-elevated);
+      padding: 48px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #090e1a;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    .visual-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+    .visual-copy {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .role-guide {
+      margin-top: 24px;
+      display: grid;
+      gap: 12px;
+    }
+    .role-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #090e1a;
+      padding: 14px;
+    }
+    .role-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .role-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #1e293b;
+      color: #94a3b8;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+    .role-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.45;
+    }
+    .legal-note {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 24px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 600px) {
+      .page {
+        padding: 0;
+        min-height: 100%;
+      }
+      .shell {
+        width: 100%;
+        min-height: 100vh;
+        border-radius: 0;
+        border: 0;
+      }
+      .register-side {
+        padding: 36px 24px;
+        min-height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="shell">
+
+    <section class="register-side">
+      <div class="content">
+        <a href="index.html" class="brand">
+          <span class="brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </span>
+          <span>ThreatLens</span>
+        </a>
+
+        <div class="eyebrow">Onboarding</div>
+        <h1>Create Account</h1>
+        <p class="intro">
+          Register an authorized operator account to access security simulation controls and threat intelligence reporting.
+        </p>
+
+        <div id="registerError" style="padding:10px 14px; border-radius:var(--radius); font-size:12px; margin-bottom:14px; display:none; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); color:#fca5a5;"></div>
+        <div id="registerSuccess" style="padding:10px 14px; border-radius:var(--radius); font-size:12px; margin-bottom:14px; display:none; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.35); color:#86efac;"></div>
+
+        <form id="registerForm" onsubmit="handleRegister(event)">
+          <div class="field">
+            <label for="fullName">Full Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </span>
+              <input id="fullName" type="text" placeholder="Alex Morgan" required autocomplete="name" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email">Work Email</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/>
+                  <path d="m22 7-10 7L2 7"/>
+                </svg>
+              </span>
+              <input id="email" type="email" placeholder="alex.morgan@company.com" required autocomplete="email" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="role">System Role</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </span>
+              <select id="role">
+                <option value="admin">Administrator (Full simulation &amp; campaign controls)</option>
+                <option value="user">Standard User (Awareness training &amp; reporting)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap password-wrap">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input id="password" type="password" placeholder="At least 6 characters" required autocomplete="new-password" />
+              <button class="password-toggle" type="button" onclick="togglePassword('password')" aria-label="Toggle password visibility">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-wrap password-wrap">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input id="confirmPassword" type="password" placeholder="Re-enter password" required autocomplete="new-password" />
+              <button class="password-toggle" type="button" onclick="togglePassword('confirmPassword')" aria-label="Toggle password visibility">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="terms-row">
+            <input type="checkbox" id="agreeTerms" required />
+            <label for="agreeTerms">
+              I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and confirm authorized organizational use.
+            </label>
+          </div>
+
+          <button id="registerSubmitBtn" class="submit-btn" type="submit">Create Account</button>
+        </form>
+
+        <div class="bottom">
+          Already registered? <a href="login.html">Sign in here</a>
+        </div>
+
+        <div class="footer-links">
+          <a href="privacy.html">Privacy Policy</a>
+          <span>·</span>
+          <a href="terms.html">Terms of Service</a>
+          <span>·</span>
+          <span>Firebase RTDB Synchronized</span>
+        </div>
+      </div>
+    </section>
+
+
+
+  </div>
+</div>
+
+<script>
+  const API_BASE = (window.location.port === '8080' || window.location.port === '3001' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:8080' : '';
+
+  function togglePassword(inputId){
+    const input = document.getElementById(inputId);
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+
+  async function handleRegister(event){
+    event.preventDefault();
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const role = document.getElementById('role').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const errorEl = document.getElementById('registerError');
+    const successEl = document.getElementById('registerSuccess');
+    const btn = document.getElementById('registerSubmitBtn');
+
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+
+    if(password !== confirmPassword){
+      errorEl.textContent = 'Passwords do not match.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    if(password.length < 6){
+      errorEl.textContent = 'Password must be at least 6 characters long.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+
+    try {
+      const resp = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, full_name: fullName, role })
+      });
+      const data = await resp.json();
+      if(!resp.ok){
+        throw new Error(data.detail || 'Registration failed');
+      }
+
+      localStorage.setItem('phishy_user', JSON.stringify(data.user));
+      localStorage.setItem('phishy_token', data.token || 'token');
+
+      successEl.textContent = 'Account created successfully. Redirecting to platform...';
+      successEl.style.display = 'block';
+
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 600);
+
+    } catch (err){
+      errorEl.textContent = err.message;
+      errorEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+    }
+  }
+</script>
+
+</body>
+</html>

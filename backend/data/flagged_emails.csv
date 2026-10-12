@@ -1,0 +1,2 @@
+timestamp,email_id,sender_email,subject,flag_category,confidence_level,user_email,plugin_type,plugin_version,threat_level,ai_confidence,additional_context,status
+2026-10-12T13:10:28.988151+00:00,eml_test_999,attacker@suspicious-domain.xyz,Urgent Action Required: Verify Bank Account,phishing,0.95,alert.reporter@company.com,unknown,unknown,critical,0.8999999999999999,Suspicious spoofed sender,pending

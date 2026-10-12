@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy - ThreatLens Security Platform</title>
+  <meta name="description" content="Privacy Policy and security telemetry disclosures for the ThreatLens phishing simulation and email intelligence platform." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <style>
+    :root {
+      --bg: #090d16;
+      --panel: #0f172a;
+      --panel-border: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-soft: rgba(37, 99, 235, 0.12);
+      --success: #10b981;
+      --radius: 6px;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 16px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .brand svg {
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+    }
+    nav {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+    nav a:hover {
+      color: var(--text);
+    }
+    .btn-nav {
+      background: var(--accent);
+      color: #ffffff;
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.15s ease;
+    }
+    .btn-nav:hover {
+      background: var(--accent-hover);
+      color: #ffffff;
+    }
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+    .kicker {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+      color: #ffffff;
+    }
+    .meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 36px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+    .content-section {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    p {
+      color: #cbd5e1;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+    p:last-child {
+      margin-bottom: 0;
+    }
+    ul {
+      margin: 12px 0 16px 20px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .callout {
+      background: var(--accent-soft);
+      border-left: 3px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #bfdbfe;
+    }
+    footer {
+      background: var(--panel);
+      border-top: 1px solid var(--panel-border);
+      padding: 24px 32px;
+      margin-top: auto;
+    }
+    .footer-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-links {
+      display: flex;
+      gap: 18px;
+    }
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      color: var(--text);
+    }
+    @media (max-width: 640px) {
+      .content-section {
+        padding: 20px 18px;
+      }
+      h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <a href="index.html" class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>ThreatLens</span>
+      </a>
+      <nav>
+        <a href="index.html">Platform</a>
+        <a href="terms.html">Terms</a>
+        <a href="login.html" class="btn-nav">Sign In</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="kicker">Legal &amp; Compliance</div>
+    <h1>Privacy Policy</h1>
+    <div class="meta">Effective Date: October 12, 2026 | Version 2.1</div>
+
+    <div class="content-section">
+      <h2>1. Scope &amp; Purpose</h2>
+      <p>
+        This Privacy Policy explains how ThreatLens ("we", "our", or "the Platform") collects, stores, processes,
+        and protects telemetry and account information in connection with our cybersecurity awareness, phishing
+        simulation, and email security analytics services.
+      </p>
+      <p>
+        ThreatLens is deployed strictly for organizational risk management, authorized employee security education,
+        and defensive threat intelligence analysis. We do not sell personal data, monetize user information, or share
+        simulation results with external advertising platforms.
+      </p>
+    </div>
+
+    <div class="content-section">
+      <h2>2. Information Collected</h2>
+      <p>We process only the telemetry necessary to execute authorized simulations and measure cybersecurity resilience:</p>
+      <ul>
+        <li>
+          <strong>Account &amp; Authentication Records:</strong> Email address, authorized organizational role (Admin, Analyst, or User),
+          and bcrypt-hashed password credentials managed via Firebase Authentication. We never store plaintext passwords.
+        </li>
+        <li>
+          <strong>Phishing Simulation Telemetry:</strong> Timestamp of simulation interactions, target recipient email, campaign
+          identifier, client IP address, and User-Agent string recorded when a simulation tracking URL is accessed.
+        </li>
+        <li>
+          <strong>Email Open Verification:</strong> 1x1 tracking pixel requests used solely to determine whether an educational
+          simulation email reached the recipient inbox and was opened.
+        </li>
+        <li>
+          <strong>Flagged Threat Intelligence:</strong> Email sender headers, subject line, body text fragments, and threat category
+          submitted by users who report suspicious messages for AI heuristic classification.
+        </li>
+      </ul>
+      <div class="callout">
+        <strong>Simulation Privacy Principle:</strong> Simulation telemetry is collected strictly for employee coaching
+        and organization-level posture metrics. Passwords or credentials entered into simulation landing pages are discarded
+        or hashed; plaintext form credentials are never stored.
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2>3. Data Storage &amp; Infrastructure</h2>
+      <p>
+        Telemetry records, user profiles, and threat reports are persisted in Google Cloud Firebase Realtime Database
+        with TLS 1.3 encryption in transit and AES-256 encryption at rest. Access to administrative records requires
+        valid JWT bearer token authorization.
+      </p>
+      <p>
+        Local database backups and cache structures are maintained with thread-safe locking and are restricted to authorized
+        system administrators executing the backend service.
+      </p>
+    </div>
+
+    <div class="content-section">
+      <h2>4. Data Retention &amp; Deletion</h2>
+      <p>
+        We adhere to data minimization principles:
+      </p>
+      <ul>
+        <li>Simulation click records and open tracking metrics are maintained for 90 days following campaign completion, after which they are aggregated into anonymized metrics or deleted upon administrator request.</li>
+        <li>Account records persist until account termination by the administrator or upon formal data deletion request.</li>
+        <li>System administrators may initiate a full telemetry purge at any time using the administrative clear endpoint.</li>
+      </ul>
+    </div>
+
+    <div class="content-section">
+      <h2>5. Your Rights (GDPR &amp; CCPA Compliance)</h2>
+      <p>
+        Depending on your jurisdiction, employees and users participating in ThreatLens simulations have the right to:
+      </p>
+      <ul>
+        <li>Request access to the personal data and interaction history associated with their email address.</li>
+        <li>Request rectification of inaccurate account details.</li>
+        <li>Request the erasure of simulation records in accordance with employer data governance policies.</li>
+        <li>Inquire regarding the technical criteria and scoring used in risk assessments.</li>
+      </ul>
+    </div>
+
+    <div class="content-section">
+      <h2>6. Contact &amp; Governance</h2>
+      <p>
+        For inquiries regarding this Privacy Policy, telemetry handling, or compliance procedures, please contact your
+        designated Security Administrator or reach our compliance team at <strong>privacy@threatlens.local</strong>.
+      </p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>&copy; 2026 ThreatLens Security. All rights reserved.</div>
+      <div class="footer-links">
+        <a href="terms.html">Terms &amp; Conditions</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="login.html">Sign In</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

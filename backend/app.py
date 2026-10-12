@@ -70,11 +70,17 @@ if not USE_WILDCARD:
 log_dir = Path("logs")
 log_dir.mkdir(exist_ok=True)
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 logging.basicConfig(
     level=logging.DEBUG if DEBUG else logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(log_dir / "phishy_app.log"),
+        logging.FileHandler(log_dir / "phishy_app.log", encoding="utf-8"),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -299,6 +305,18 @@ async def health_check():
         except Exception as e:
             data_status["error"] = str(e)
     
+    db_status = {"type": "Firebase Realtime Database", "live": False, "users_count": 0}
+    try:
+        from database import is_live_firebase, db_get_all_users, get_firebase_mode, FIREBASE_DATABASE_URL
+        db_status["live"] = is_live_firebase()
+        db_mode = get_firebase_mode()
+        db_status["mode"] = db_mode
+        db_status["type"] = db_mode
+        db_status["database_url"] = FIREBASE_DATABASE_URL
+        db_status["users_count"] = len(db_get_all_users())
+    except Exception as e:
+        db_status["error"] = str(e)
+
     return {
         "status": "healthy",
         "version": "2.1.0",
@@ -308,6 +326,7 @@ async def health_check():
             "frontend_port": FRONTEND_PORT,
             "note": "Updated to avoid Splunk conflicts (port 8000)"
         },
+        "database": db_status,
         "routes_loaded": routes_loaded,
         "routes_failed": routes_failed,
         "file_system": fs_status,
@@ -365,11 +384,12 @@ async def startup_event():
     """Startup event handler"""
     logger.info("Phishy Platform starting up...")
     try:
-        from database import init_db
+        from database import init_db, is_live_firebase
         init_db()
-        logger.info("SQLite Database ready")
+        mode = "Live Cloud Firestore" if is_live_firebase() else "Local Firestore Storage Engine"
+        logger.info(f"Firebase Database ready ({mode})")
     except Exception as e:
-        logger.error(f"Failed to initialize SQLite database: {e}")
+        logger.error(f"Failed to initialize Firebase database: {e}")
     logger.info(f"Backend server starting on: http://{HOST}:{BACKEND_PORT}")
     logger.info(f"Frontend should run on: http://localhost:{FRONTEND_PORT}")
     logger.info(f"API Documentation: http://localhost:{BACKEND_PORT}/docs")

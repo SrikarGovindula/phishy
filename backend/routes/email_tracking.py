@@ -38,7 +38,7 @@ def get_email_opens_file():
     return os.path.join(data_dir, "email_opens.csv")
 
 def log_email_open(user_email: str, action_id: str, ip_address: str, user_agent: str = None, campaign_id: str = None):
-    """Log email open to CSV file and SQLite DB"""
+    """Log email open to CSV file and Firebase DB"""
     try:
         opens_file = get_email_opens_file()
         if not os.path.exists(opens_file):
@@ -62,22 +62,20 @@ def log_email_open(user_email: str, action_id: str, ip_address: str, user_agent:
     try:
         from database import db_add_email_open
         db_add_email_open(user_email, action_id, ip_address, user_agent, campaign_id)
-        logger.info(f"Logged email open to SQLite DB: {user_email} - {action_id}")
+        logger.info(f"Logged email open to Firebase DB: {user_email} - {action_id}")
     except Exception as e:
-        logger.error(f"Failed to log email open to SQLite DB: {e}")
+        logger.error(f"Failed to log email open to Firebase DB: {e}")
 
 def load_email_opens_data() -> pd.DataFrame:
-    """Load email opens data directly from SQLite Database"""
+    """Load email opens data directly from Firebase Database"""
     try:
-        from database import get_db_connection
-        conn = get_db_connection()
-        df = pd.read_sql_query("SELECT timestamp, user_email, action_id, ip_address, user_agent, campaign_id FROM email_opens", conn)
-        conn.close()
+        from database import db_get_email_opens_df
+        df = db_get_email_opens_df()
         if not df.empty and 'timestamp' in df.columns:
             df['timestamp'] = pd.to_datetime(df['timestamp'])
         return df
     except Exception as e:
-        logger.error(f"Error reading email opens from SQLite DB: {e}")
+        logger.error(f"Error reading email opens from Firebase DB: {e}")
         opens_file = get_email_opens_file()
         if not os.path.exists(opens_file):
             return pd.DataFrame(columns=["timestamp", "user_email", "action_id", "ip_address", "user_agent", "campaign_id"])
@@ -233,19 +231,23 @@ async def export_tracking_data(
     try:
         df = load_email_opens_data()
         
-        if df.empty:
-            return {"message": "No tracking data available"}
+        columns = ["timestamp", "user_email", "action_id", "ip_address", "user_agent", "campaign_id"]
         
-        # Filter by date range
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
-        df_filtered = df[df['timestamp'] >= cutoff_date]
+        if df.empty or 'timestamp' not in df.columns:
+            df_filtered = pd.DataFrame(columns=columns)
+        else:
+            # Ensure timestamp is UTC-aware for safe comparison
+            df['timestamp'] = pd.to_datetime(df['timestamp'], utc=True, errors='coerce')
+            cutoff_date = pd.Timestamp.now(tz='UTC') - pd.Timedelta(days=days)
+            df_filtered = df[df['timestamp'] >= cutoff_date].copy()
+            # If filtering left it empty but we had rows, fallback to all valid rows
+            if df_filtered.empty and not df.empty:
+                df_filtered = df.copy()
         
         if format.lower() == "json":
-            # Convert to JSON
             data = df_filtered.to_dict('records')
-            # Convert timestamps to strings
             for record in data:
-                if 'timestamp' in record:
+                if 'timestamp' in record and hasattr(record['timestamp'], 'isoformat'):
                     record['timestamp'] = record['timestamp'].isoformat()
             
             return {
@@ -256,10 +258,18 @@ async def export_tracking_data(
             }
         
         else:  # CSV format
+            # Format timestamps nicely for CSV
+            csv_df = df_filtered.copy()
+            if not csv_df.empty and 'timestamp' in csv_df.columns:
+                csv_df['timestamp'] = csv_df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S UTC')
+            csv_content = csv_df.to_csv(index=False)
             return Response(
-                content=df_filtered.to_csv(index=False),
+                content=csv_content,
                 media_type="text/csv",
-                headers={"Content-Disposition": f"attachment; filename=email_opens_{days}days.csv"}
+                headers={
+                    "Content-Disposition": f"attachment; filename=email_opens_{days}days.csv",
+                    "Access-Control-Expose-Headers": "Content-Disposition"
+                }
             )
         
     except Exception as e:
