@@ -1,0 +1,11 @@
+# The frontend is plain static HTML/JS with no package.json, so there is
+# nothing to install or compile. This overrides the "npm run build" command
+# configured in the Netlify UI.
+[build]
+  command = "echo 'Static site: no build step required'"
+  publish = "."
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
